@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 namespace Blatant
 {
     class Program
-    {
+    { 
         static void Main(string[] args)
         {
-
+            //test
         }
     }
 }
