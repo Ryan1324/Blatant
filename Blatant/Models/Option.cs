@@ -14,7 +14,7 @@ namespace Blatant.Models
     {
         public int ID { get; set; }
         public string OptionName { get; set; }
-        public double? OptionPrice { get; set; }
-        public double? Discount { get; set; }
+        public decimal? OptionPrice { get; set; }
+        public decimal? Discount { get; set; }
     }
 }

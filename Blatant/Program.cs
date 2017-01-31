@@ -1,57 +1,58 @@
 ﻿using Blatant.Models;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Blatant
 {
     class Program
     {
-        static string promo;
-        static string choice;
-        static double? cost;
+        private static string promo;
+        private static string choice;
+        private static decimal? cost = 0;
         static void Main(string[] args)
         {
             choice = "A"; 
-            System.Console.WriteLine("**********GroceryCo***********");
+            System.Console.WriteLine("*************GroceryCo**************");
             while (promo != "Y" && promo != "N")
             {
-                Console.WriteLine("Are there any promotions at this time (Y/N?");
+                Console.Write("Are there any promotions at this time (Y/N)?");
                 promo = Console.ReadLine();
             }
 
             // Read each line of the file into a string array. Each element
             // of the array is one line of the file.
 
-            string[] lines = System.IO.File.ReadAllLines(@"C:\Users\Ryan\Documents\Blatant\Opening.txt");
+            string[] lines = System.IO.File.ReadAllLines(@"../Opening.txt");
             Option[] options = ReadFromFile(lines);
             while (choice.ToUpper() != "X")
             {
                 // Display the file contents by using a foreach loop.
 
-                foreach (string line in lines)
+                foreach (Option option in options)
                 {
                     // Use a tab to indent each line of the file.
-                    Console.WriteLine("\t" + line);
+                    if (promo == "Y")
+                        Console.WriteLine("\t" + option.ID + " " +  option.OptionName + " - $" + option.Discount);
+                    else
+                        Console.WriteLine("\t" + +option.ID + " " + option.OptionName + " - $" + option.OptionPrice);
                 }
 
-                //  ReadFromFile(lines);
                 // Keep the console window open in debug mode.
                 Console.WriteLine("Please enter an option. Or X to close");
                 choice = System.Console.ReadLine();
-                int parse;
-                bool iparsed = int.TryParse(choice,out parse);
-                if (iparsed)
+                if (lines.Count() > 0)
                 {
-                    if (promo == "Y")
-                        cost += options.SingleOrDefault(x => x.ID == parse).Discount;
-                    else
-                        cost += options.Where(x => x.ID == parse).Select(x => x.OptionPrice);
-                Console.Write("Total: $" + cost + ".\n");
+                    int parse;
+                    bool iparsed = int.TryParse(choice, out parse);
+                    if (iparsed && options.Where(x=>x.ID == parse).Count() > 0)
+                    {
+                        if (promo == "Y")
+                            cost = cost + options.Where(x => x.ID == parse).Select(x => x.Discount).SingleOrDefault();
+                        else
+                            cost = cost + options.Where(x => x.ID == parse).Select(x => x.OptionPrice).SingleOrDefault();
+
+                        Console.Write("Total: $" + cost + ".\n");
+                    }
                 }
             }
         }
@@ -68,9 +69,8 @@ namespace Blatant
                 option[i] = new  Option ();
                 option[i].ID = i;
                 option[i].OptionName = size[0];
-                option[i].OptionPrice = double.Parse(size[1].TrimStart('$'));
-                option[i].Discount = double.Parse(size[2].TrimStart('$'));
-
+                option[i].OptionPrice = decimal.Parse(size[1].TrimStart('$'));
+                option[i].Discount = decimal.Parse(size[2].TrimStart('$'));
             }
             return option;
         }
