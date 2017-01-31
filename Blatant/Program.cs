@@ -11,11 +11,11 @@ namespace Blatant
         private static decimal? cost = 0;
         static void Main(string[] args)
         {
-            choice = "A"; 
+            choice = "A";
             System.Console.WriteLine("*************GroceryCo**************");
             while (promo != "Y" && promo != "N")
             {
-                Console.Write("Are there any promotions at this time (Y/N)?");
+                System.Console.WriteLine("Are there any promotions at this time (Y/N)?");
                 promo = Console.ReadLine();
             }
 
@@ -32,19 +32,24 @@ namespace Blatant
                 {
                     // Use a tab to indent each line of the file.
                     if (promo == "Y")
-                        Console.WriteLine("\t" + option.ID + " " +  option.OptionName + " - $" + option.Discount);
+                    {
+                        Console.WriteLine("\t" + option.ID + " " + option.OptionName + " - $" + option.Discount);
+                    }
                     else
+                    {
                         Console.WriteLine("\t" + +option.ID + " " + option.OptionName + " - $" + option.OptionPrice);
+                    }
                 }
 
                 // Keep the console window open in debug mode.
-                Console.WriteLine("Please enter an option. Or X to close");
+                Console.WriteLine("Please enter an option. Or X to close and print the receipt.");
+
                 choice = System.Console.ReadLine();
                 if (lines.Count() > 0)
                 {
                     int parse;
                     bool iparsed = int.TryParse(choice, out parse);
-                    if (iparsed && options.Where(x=>x.ID == parse).Count() > 0)
+                    if (iparsed && options.Where(x => x.ID == parse).Count() > 0)
                     {
                         if (promo == "Y")
                             cost = cost + options.Where(x => x.ID == parse).Select(x => x.Discount).SingleOrDefault();
@@ -55,9 +60,15 @@ namespace Blatant
                     }
                 }
             }
+            //PrintToFile();
         }
 
-
+        public static bool PrintToFile()
+        {
+            Print printer = new Print();
+            printer.PrinttoFile("HP Office Jet", @".\Receipt.txt");
+            return true;
+        }
 
         public static Option[] ReadFromFile(string[] file)
         {
