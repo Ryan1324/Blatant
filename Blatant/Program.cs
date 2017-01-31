@@ -1,5 +1,6 @@
 ﻿using Blatant.Models;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Blatant
@@ -8,18 +9,27 @@ namespace Blatant
     {
         private static string promo;
         private static string choice;
-        private static decimal? cost = 0;
+        private static string groupMember;
         private static string str = string.Empty;
+        private static IList<Option> groceryList;
+        static Program()
+        {
+            groceryList = new List<Option>();
+        }
         static void Main(string[] args)
         {
-            choice = "A";
+            choice = "A";            
             System.Console.WriteLine("*************GroceryCo**************");
             str += "*************GroceryCo**************\n";
             while (promo != "Y" && promo != "N")
             {
                 System.Console.WriteLine("Are there any promotions at this time (Y/N)?");
                 str += "Are there any promotions at this time (Y/N)?\n";
-                promo = Console.ReadLine();
+                promo = Console.ReadLine().ToUpper();
+
+                System.Console.WriteLine("Is the customer a group member (Y/N)?");
+                str += "Is the customer a group member (Y/N)?\n";
+                groupMember = Console.ReadLine().ToUpper();
             }
 
             // Read each line of the file into a string array. Each element
@@ -27,12 +37,10 @@ namespace Blatant
             try
             {
                 string[] lines = System.IO.File.ReadAllLines(@"../Opening.txt");
-                Option[] options = ReadFromFile(lines);
-
                 while (choice.ToUpper() != "X")
                 {
                     // Display the file contents by using a foreach loop.
-
+                    Option[] options = ReadFromFile(lines);
                     foreach (Option option in options)
                     {
                         // Use a tab to indent each line of the file.
@@ -58,13 +66,9 @@ namespace Blatant
                         bool iparsed = int.TryParse(choice, out parse);
                         if (iparsed && options.Where(x => x.ID == parse).Count() > 0)
                         {
-                            if (promo == "Y")
-                                cost = cost + options.Where(x => x.ID == parse).Select(x => x.Discount).SingleOrDefault();
-                            else
-                                cost = cost + options.Where(x => x.ID == parse).Select(x => x.OptionPrice).SingleOrDefault();
-
-                            Console.Write("Total: $" + cost + ".\n");
-                            str += "Total: $" + cost + ".\n";
+                            var groceryItem = options.Where(x => x.ID == parse).SingleOrDefault();
+                            groceryList.Add(groceryItem);
+                            Recalculate();
                         }
                     }
                 }
@@ -87,6 +91,41 @@ namespace Blatant
             var printerName = Console.ReadLine();
             Print.SendStringToPrinter(printerName, str);
             return true;
+        }
+
+        /// <summary>
+        /// Recalculate total wih group promo.  Ex. Buy 3 for $2.00
+        /// </summary>
+        public static void Recalculate()
+        {
+            decimal? cost = 0;
+            int i = 0;           
+            foreach (var groceryItem in groceryList)
+            {
+                if (promo == "Y")
+                {
+                    cost = cost + groceryItem.Discount;
+                }
+                else
+                {
+                    if (promo == "N" && groupMember == "Y" && groceryList.Where(x => x.ID == groceryItem.ID).Count() % 3 == 0)
+                    {
+                        i++;
+                        if (i % 3 == 0)
+                        {
+                            Console.WriteLine("$2.00 for three " + groceryItem.OptionName + " promotion applied for group member.");
+                            groceryItem.OptionPrice = 2;
+                        }
+                        else
+                        {
+                            groceryItem.OptionPrice = 0;
+                        }
+                    }
+                    cost = cost + groceryItem.OptionPrice;
+                }
+            }
+            Console.Write("Total: $" + cost + ".\n\n\n");
+            str += "Total: $" + cost + ".\n";
         }
 
         public static Option[] ReadFromFile(string[] file)

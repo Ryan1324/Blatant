@@ -50,7 +50,7 @@ namespace Blatant
                 DOCINFOA di = new DOCINFOA();
                 bool bSuccess = false; // Assume failure unless you specifically succeed.
 
-                di.pDocName = "My C#.NET RAW Document";
+                di.pDocName = "Blatant RAW Document";
                 di.pDataType = "RAW";
 
                 // Open the printer.
